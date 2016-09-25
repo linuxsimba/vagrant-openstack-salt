@@ -1,0 +1,3 @@
+# vagrant-openstack-salt
+
+TODO

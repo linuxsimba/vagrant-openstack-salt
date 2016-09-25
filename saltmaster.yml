@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: True
+  tasks:
+    - name: install the saltmaster
+      apt: name=salt-master
+      notify: restart salt master
+
+    - name: enable auto accept of all keys (insecure but good for vagrant test)
+      lineinfile:
+        dest: /etc/salt/master
+        insertafter: "#auto_accept"
+        line: "auto_accept: True"
+      notify: restart salt master
+
+  handlers:
+    - name: restart salt master
+      service: name=salt-master state=restarted

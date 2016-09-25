@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: True
+  tasks:
+    - name: update /etc/hosts
+      template: src=etc_hosts.j2 dest=/etc/hosts
+
+    - name: add saltstack ppa
+      apt_repository:
+        repo:  "ppa:saltstack/salt"
+        update_cache: yes
+
+    - name: install saltstack minion
+      apt: name=salt-minion
+      notify: restart salt
+
+  handlers:
+    - name: restart salt
+      service: name=salt-minion state=restarted
+
+
+
