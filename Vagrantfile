@@ -22,10 +22,10 @@ Vagrant.configure(2) do |config|
     node.vm.network :private_network,
       :ip => '172.10.10.102/24'
   end
-  config.vm.define :ctl02 do |node|
+  config.vm.define :ctl03 do |node|
     node.vm.hostname = 'ctl02'
     node.vm.network :private_network,
-      :ip => '172.10.10.102/24'
+      :ip => '172.10.10.103/24'
   end
   config.vm.define :cpt01 do |node|
     node.vm.hostname = 'cpt01'

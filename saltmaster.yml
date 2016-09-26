@@ -6,13 +6,22 @@
       apt: name=salt-master
       notify: restart salt master
 
-    - name: enable auto accept of all keys (insecure but good for vagrant test)
-      lineinfile:
-        dest: /etc/salt/master
-        insertafter: "#auto_accept"
-        line: "auto_accept: True"
+    - name: install reclass
+      apt: name=reclass
+
+    - name: install git
+      apt: name=git
+
+    - name: add custom changes to reclass
+      copy: src=reclass-config.yml dest=/etc/reclass/reclass-config.yml
+      notify: restart reclass
+
+    - name: add custom changes to the salt master config
+      copy: src=master.conf dest=/etc/salt/master.d/master.conf
       notify: restart salt master
 
   handlers:
     - name: restart salt master
       service: name=salt-master state=restarted
+    - name: restart reclass
+      service: name=reclass state=restarted
