@@ -12,9 +12,11 @@
     - name: install git
       apt: name=git
 
+    - name: create directory where reclass config is stored
+      file: path=/etc/reclass state=directory
+
     - name: add custom changes to reclass
       copy: src=reclass-config.yml dest=/etc/reclass/reclass-config.yml
-      notify: restart reclass
 
     - name: add custom changes to the salt master config
       copy: src=master.conf dest=/etc/salt/master.d/master.conf
@@ -23,5 +25,3 @@
   handlers:
     - name: restart salt master
       service: name=salt-master state=restarted
-    - name: restart reclass
-      service: name=reclass state=restarted
