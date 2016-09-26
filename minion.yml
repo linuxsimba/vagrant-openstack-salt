@@ -4,6 +4,10 @@
   tasks:
     - name: update /etc/hosts
       template: src=etc_hosts.j2 dest=/etc/hosts
+    - name: |
+        make sure softwre-properties-common is installed.
+        it adds the add-apt-repository command, which is used by the next task
+      apt: name=software-properties-common
 
     - name: add saltstack ppa
       apt_repository:
