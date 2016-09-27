@@ -2,8 +2,12 @@
 - hosts: all
   become: True
   tasks:
-    - name: update /etc/hosts
+    - name: update /etc/hosts with a proper fqdn. vagrant sucks at doing this
       template: src=etc_hosts.j2 dest=/etc/hosts
+
+    - name: update the /etc/hostname file
+      hostname: name="{{ ansible_hostname }}.vagrant.vm"
+
     - name: |
         make sure softwre-properties-common is installed.
         it adds the add-apt-repository command, which is used by the next task
