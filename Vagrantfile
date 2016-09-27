@@ -38,9 +38,6 @@ Vagrant.configure(2) do |config|
     node.vm.network :private_network,
       :ip => '192.168.200.106/24'
   end
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "minion.yml"
-  end
 
   config.vm.define :saltmaster do |node|
     node.vm.hostname = 'cfg01'
@@ -49,6 +46,12 @@ Vagrant.configure(2) do |config|
     config.vm.provision "ansible" do |ansible|
       ansible.playbook = "saltmaster.yml"
     end
+  end
+
+  # Common ansible script ran on all VMs
+  # First before any other ansible script
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "minion.yml"
   end
 
 end
