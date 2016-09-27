@@ -86,7 +86,7 @@
         add reclass file for the saltmaster
       template:
         src: reclass_cfg01.yml.j2
-        dest: /srv/salt/reclass/nodes/cfg01.yml
+        dest: /srv/salt/reclass/nodes/cfg01.vagrant.vm.yml
   handlers:
     - name: restart salt master
       service: name=salt-master state=restarted
