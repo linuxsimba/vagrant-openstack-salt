@@ -1,6 +1,12 @@
 ---
 - hosts: all
   become: True
+  vars:
+    salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx"]
+    salt_formula_path: /usr/share/salt-formulas
+    reclass_git_repo: https://github.com/linuxsimba/openstack-salt-model.git
+    reclass_git_repo_install_dir: /srv/salt/reclass
+
   tasks:
     - name: install the saltmaster
       apt: name=salt-master
@@ -15,13 +21,69 @@
     - name: create directory where reclass config is stored
       file: path=/etc/reclass state=directory
 
-    - name: add custom changes to reclass
+    - name: add custom changes to reclass config in /etc/reclass
       copy: src=reclass-config.yml dest=/etc/reclass/reclass-config.yml
+
+    - name: create /srv/salt/ directory to store reclass data
+      file: path=/srv/salt state=directory
+
+    - name: add reclass config for openstack-salt from github
+      git:
+        repo: "{{ reclass_git_repo }}"
+        dest: "{{ reclass_git_repo_install_dir }}"
 
     - name: add custom changes to the salt master config
       copy: src=master.conf dest=/etc/salt/master.d/master.conf
       notify: restart salt master
 
+    - name: install apt key for salt formulas from tcp-cloud
+      apt_key:
+        url: http://apt.tcpcloud.eu/public.gpg
+
+    - name: install repo with salt formulas from tcp-cloud
+      apt_repository:
+        repo:  "deb [arch=amd64] http://apt.tcpcloud.eu/nightly/ trusty tcp-salt"
+
+    - name: install salt-formulas
+      apt: name="salt-formula-{{item}}"
+      with_items: "{{ salt_formulas }}"
+
+    - name: |
+        create the /srv/salt/classes/service directory.
+        It is used in the next step.
+        Not sure what the purpose of this directory is
+      file:
+        path: "{{ reclass_git_repo_install_dir}}/classes/service"
+        state: directory
+
+    - name: |
+        make symlinks of the service folders in the salt-formulas to a
+        directory structure in /srv/salt/reclass/classes/service.
+        Not sure why you need to do this
+      file:
+        src: "{{ salt_formula_path }}/reclass/service/{{item}}"
+        dest: "{{ reclass_git_repo_install_dir }}/classes/service/{{item}}"
+        state: link
+      with_items: "{{ salt_formulas }}"
+
+    - name: |
+        make the /src/salt/env dir.
+        You then link the /usr/share/salt-formula/env path to
+        /srv/salt/env/prd in the next task
+      file: path=/srv/salt/env state=directory
+
+    - name: |
+        link the /usr/share/salt-formula/env path to /srv/salt/prd. Not sure
+        why this is done
+      file:
+        src:  "{{ salt_formula_path }}/env"
+        dest: "/srv/salt/env/prd"
+        state: link
+    - name: |
+        add reclass file for the saltmaster
+      template:
+        src: reclass_cfg01.yml.j2
+        dest: /srv/salt/reclass/nodes/cfg01.yml
   handlers:
     - name: restart salt master
       service: name=salt-master state=restarted
