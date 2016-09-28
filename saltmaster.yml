@@ -2,7 +2,7 @@
 - hosts: all
   become: True
   vars:
-    salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx"]
+    salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx","keepalived"]
     salt_formula_path: /usr/share/salt-formulas
     reclass_git_repo: https://github.com/linuxsimba/openstack-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
@@ -12,23 +12,11 @@
       apt: name=salt-master
       notify: restart salt master
 
-    - name: add the ppa that includes the latest version of reclass 1.4+
-      apt_repository: repo=ppa:anonymouz/reclass
-
-    - name: install reclass
-      apt: name=reclass
-
     - name: install git
       apt: name=git
 
     - name: create directory where reclass config is stored
       file: path=/etc/reclass state=directory
-
-    - name: add custom changes to reclass config in /etc/reclass
-      copy: src=reclass-config.yml dest=/etc/reclass/reclass-config.yml
-
-    - name: create /srv/salt/ directory to store reclass data
-      file: path=/srv/salt state=directory
 
     - name: add reclass config for openstack-salt from github
       git:
@@ -82,11 +70,6 @@
         src:  "{{ salt_formula_path }}/env"
         dest: "/srv/salt/env/prd"
         state: link
-    - name: |
-        add reclass file for the saltmaster
-      template:
-        src: reclass_cfg01.yml.j2
-        dest: /srv/salt/reclass/nodes/cfg01.vagrant.vm.yml
   handlers:
     - name: restart salt master
       service: name=salt-master state=restarted

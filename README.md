@@ -56,5 +56,9 @@ apt-get install ansible
 # cd $HOME
 # git clone https://github.com/linuxsimba/vagrant-openstack-salt
 # cd vagrant-openstack-salt
-# vagrant up
+# vagrant up --no-parallel
+
 ```
+
+After the Vagrant Install Log into the Saltmaster and kick off the Install
+
