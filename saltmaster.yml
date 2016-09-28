@@ -2,7 +2,7 @@
 - hosts: all
   become: True
   vars:
-    salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx","keepalived"]
+    salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx","keepalived", "haproxy", 'memcached', 'rabbitmq', 'keystone', 'python', 'glusterfs', 'glance', 'nova', 'neutron', 'cinder', 'heat', 'opencontrail','galera', 'horizon']
     salt_formula_path: /usr/share/salt-formulas
     reclass_git_repo: https://github.com/linuxsimba/openstack-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
@@ -17,6 +17,18 @@
 
     - name: create directory where reclass config is stored
       file: path=/etc/reclass state=directory
+
+    - name: add the ppa that includes the latest version of reclass 1.4+
+      apt_repository: repo=ppa:anonymouz/reclass
+
+    - name: install reclass
+      apt: name=reclass
+
+    - name: create directory where reclass config is stored
+      file: path=/etc/reclass state=directory
+
+    - name: add custom changes to reclass config in /etc/reclass
+      copy: src=reclass-config.yml dest=/etc/reclass/reclass-config.yml
 
     - name: add reclass config for openstack-salt from github
       git:

@@ -22,18 +22,6 @@
       apt: name=salt-minion
       notify: restart salt minion
 
-    - name: add the ppa that includes the latest version of reclass 1.4+
-      apt_repository: repo=ppa:anonymouz/reclass
-
-    - name: install reclass
-      apt: name=reclass
-
-    - name: create directory where reclass config is stored
-      file: path=/etc/reclass state=directory
-
-    - name: add custom changes to reclass config in /etc/reclass
-      copy: src=reclass-config.yml dest=/etc/reclass/reclass-config.yml
-
   handlers:
     - name: restart salt minion
       service: name=salt-minion state=restarted
