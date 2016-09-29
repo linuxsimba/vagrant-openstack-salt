@@ -45,7 +45,7 @@
 
     - name: install repo with salt formulas from tcp-cloud
       apt_repository:
-        repo:  "deb [arch=amd64] http://apt.tcpcloud.eu/nightly/ trusty tcp-salt"
+        repo:  "deb [arch=amd64] http://apt.tcpcloud.eu/stable/ trusty tcp-salt"
 
     - name: install salt-formulas
       apt: name="salt-formula-{{item}}"
