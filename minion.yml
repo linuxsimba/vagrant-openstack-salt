@@ -8,15 +8,11 @@
     - name: update the /etc/hostname file
       hostname: name="{{ ansible_hostname }}.vagrant.vm"
 
-    - name: |
-        make sure softwre-properties-common is installed.
-        it adds the add-apt-repository command, which is used by the next task
-      apt: name=software-properties-common
+    - name: install official apt 14.04 key for saltstack repo
+      apt_key: url="https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub"
 
-    - name: add saltstack ppa
-      apt_repository:
-        repo:  "ppa:saltstack/salt"
-        update_cache: yes
+    - name: add official saltstack apt repo
+      apt_repository: repo="deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main"
 
     - name: install saltstack minion
       apt: name=salt-minion
