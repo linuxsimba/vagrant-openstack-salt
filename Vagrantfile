@@ -23,11 +23,6 @@ Vagrant.configure(2) do |config|
     node.vm.network :private_network,
       :ip => '192.168.200.103/24'
   end
-  config.vm.define :dashboard do |node|
-    node.vm.hostname = 'web01'
-    node.vm.network :private_network,
-      :ip => '192.168.200.104/24'
-  end
   config.vm.define :cpt01 do |node|
     node.vm.hostname = 'cpt01'
     node.vm.network :private_network,
