@@ -4,10 +4,20 @@
   vars:
     salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx","keepalived", "haproxy", 'memcached', 'rabbitmq', 'keystone', 'python', 'glusterfs', 'glance', 'nova', 'neutron', 'cinder', 'heat', 'opencontrail','galera', 'horizon']
     salt_formula_path: /usr/share/salt-formulas
-    reclass_git_repo: https://github.com/linuxsimba/openstack-salt-model.git
+    reclass_git_repo: https://github.com/linuxsimba/mk20-lab-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
 
   tasks:
+    - name: install ansible ppa
+      apt_repository: repo="ppa:ansible/ansible"
+
+    - name: |
+        install ansible which is used to orchestrate salt actions. (not recommended by tcp cloud. Just my way of keeping things sane)
+      apt: name=ansible
+
+    - name: copy salt orchestrator ansible playbook to /home/vagrant
+      copy: src=openstack-salt-conductor.yml dest=/home/vagrant
+
     - name: install the saltmaster
       apt: name=salt-master
       notify: restart salt master
@@ -45,7 +55,7 @@
 
     - name: install repo with salt formulas from tcp-cloud
       apt_repository:
-        repo:  "deb [arch=amd64] http://apt.tcpcloud.eu/stable/ trusty tcp-salt"
+        repo:  "deb [arch=amd64] http://apt.tcpcloud.eu/nightly/ trusty tcp-salt"
 
     - name: install salt-formulas
       apt: name="salt-formula-{{item}}"

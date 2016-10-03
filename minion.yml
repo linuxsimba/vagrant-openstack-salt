@@ -1,6 +1,8 @@
 ---
 - hosts: all
   become: True
+  vars:
+    salt_ver: '2016.3'
   tasks:
     - name: update /etc/hosts with a proper fqdn. vagrant sucks at doing this
       template: src=etc_hosts.j2 dest=/etc/hosts
@@ -9,10 +11,10 @@
       hostname: name="{{ ansible_hostname }}.vagrant.vm"
 
     - name: install official apt 14.04 key for saltstack repo
-      apt_key: url="https://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest/SALTSTACK-GPG-KEY.pub"
+      apt_key: url="https://repo.saltstack.com/apt/ubuntu/14.04/amd64/{{salt_ver }}/SALTSTACK-GPG-KEY.pub"
 
     - name: add official saltstack apt repo
-      apt_repository: repo="deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/latest trusty main"
+      apt_repository: repo="deb http://repo.saltstack.com/apt/ubuntu/14.04/amd64/{{ salt_ver }} trusty main"
 
     - name: install saltstack minion
       apt: name=salt-minion
