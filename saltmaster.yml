@@ -59,15 +59,16 @@
 
     - name: |
         create the /srv/salt/classes/service directory.
-        It is used in the next step.
-        Not sure what the purpose of this directory is
+        in the reclass files one defines "service.git.client", what reclass does
+        is look in /srv/salt/reclass/classes/service/git for the client.sls file.
       file:
         path: "{{ reclass_git_repo_install_dir}}/classes/service"
         state: directory
 
     - name: |
        symlink the services folder to a folder in the /srv/salt/reclass/classes/services folder.
-       without this, reclass fails to work. Not sure why.
+       without this, reclass fails to work. add the metadata from the salt formulas to the
+       /srv/salt/reclass/classes/services folder so that reclass class statements like "service.git.client" work.
       file:
         src: "{{salt_formula_path}}/{{item.name}}/metadata/service"
         dest: "{{ reclass_git_repo_install_dir}}/classes/service/{{item.name}}"
