@@ -3,21 +3,18 @@
   become: True
   vars:
     salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx","keepalived", "haproxy", 'memcached', 'rabbitmq', 'keystone', 'python', 'glusterfs', 'glance', 'nova', 'neutron', 'cinder', 'heat', 'opencontrail','galera', 'horizon']
-    salt_formula_path: /usr/share/salt-formulas
+    salt_formula_path: /srv/salt/env/prd
     reclass_git_repo: https://github.com/linuxsimba/mk20-lab-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
+    base_salt_formulas:
+        - { name: 'salt', gitpath: "https://github.com/tcpcloud/salt-formula-salt" }
+        - { name: 'git', gitpath: "https://github.com/tcpcloud/salt-formula-git" }
+        - { name: 'linux', gitpath: "https://github.com/linuxsimba/salt-formula-linux" }
+        - { name: 'ntp', gitpath: "https://github.com/tcpcloud/salt-formula-ntp" }
+        - { name: 'reclass', gitpath: "https://github.com/tcpcloud/salt-formula-reclass" }
+
 
   tasks:
-    - name: install ansible ppa
-      apt_repository: repo="ppa:ansible/ansible"
-
-    - name: |
-        install ansible which is used to orchestrate salt actions. (not recommended by tcp cloud. Just my way of keeping things sane)
-      apt: name=ansible
-
-    - name: copy salt orchestrator ansible playbook to /home/vagrant
-      copy: src=openstack-salt-conductor.yml dest=/home/vagrant
-
     - name: install the saltmaster
       apt: name=salt-master
       notify: restart salt master
@@ -49,17 +46,16 @@
       copy: src=master.conf dest=/etc/salt/master.d/master.conf
       notify: restart salt master
 
-    - name: install apt key for salt formulas from tcp-cloud
-      apt_key:
-        url: http://apt.tcpcloud.eu/public.gpg
+    - name: |
+        create salt formula path. In this case set it up as the
+        production setup
+      file: path="{{ salt_formula_path }}" state=directory
 
-    - name: install repo with salt formulas from tcp-cloud
-      apt_repository:
-        repo:  "deb [arch=amd64] http://apt.tcpcloud.eu/nightly/ trusty tcp-salt"
-
-    - name: install salt-formulas
-      apt: name="salt-formula-{{item}}"
-      with_items: "{{ salt_formulas }}"
+    - name: install base salt formulas
+      git:
+        repo: "{{item.gitpath}}"
+        dest: "{{salt_formula_path}}/{{ item.name}}"
+      with_items: "{{base_salt_formulas}}"
 
     - name: |
         create the /srv/salt/classes/service directory.
@@ -70,28 +66,14 @@
         state: directory
 
     - name: |
-        make symlinks of the service folders in the salt-formulas to a
-        directory structure in /srv/salt/reclass/classes/service.
-        Not sure why you need to do this
+       symlink the services folder to a folder in the /srv/salt/reclass/classes/services folder.
+       without this, reclass fails to work. Not sure why.
       file:
-        src: "{{ salt_formula_path }}/reclass/service/{{item}}"
-        dest: "{{ reclass_git_repo_install_dir }}/classes/service/{{item}}"
+        src: "{{salt_formula_path}}/{{item.name}}/metadata/service"
+        dest: "{{ reclass_git_repo_install_dir}}/classes/service/{{item.name}}"
         state: link
-      with_items: "{{ salt_formulas }}"
+      with_items: "{{base_salt_formulas}}"
 
-    - name: |
-        make the /src/salt/env dir.
-        You then link the /usr/share/salt-formula/env path to
-        /srv/salt/env/prd in the next task
-      file: path=/srv/salt/env state=directory
-
-    - name: |
-        link the /usr/share/salt-formula/env path to /srv/salt/prd. Not sure
-        why this is done
-      file:
-        src:  "{{ salt_formula_path }}/env"
-        dest: "/srv/salt/env/prd"
-        state: link
   handlers:
     - name: restart salt master
       service: name=salt-master state=restarted
