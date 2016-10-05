@@ -5,7 +5,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = "trusty64-salt"
   config.vm.provider :libvirt do |domain|
     domain.nested = true
-    domain.memory = 8192
+    domain.memory = 16384
     domain.cpus = 5
   end
   config.vm.define :ctl01 do |node|
@@ -27,20 +27,30 @@ Vagrant.configure(2) do |config|
     node.vm.hostname = 'cpt01'
     node.vm.network :private_network,
       :ip => '192.168.200.105/24'
+    node.vm.provider :libvirt do |libvirt|
+      libvirt.storage :file, :size => '40G'
+    end
   end
   config.vm.define :cpt02 do |node|
     node.vm.hostname = 'cpt02'
     node.vm.network :private_network,
       :ip => '192.168.200.106/24'
+    node.vm.provider :libvirt do |libvirt|
+      libvirt.storage :file, :size => '40G'
+    end
   end
 
   config.vm.define :saltmaster do |node|
+    node.vm.provider :libvirt do |domain|
+      domain.memory = 8192
+    end
     node.vm.hostname = 'cfg01'
     node.vm.network :private_network,
       :ip => '192.168.200.107/24'
     config.vm.provision "ansible" do |ansible|
       ansible.playbook = "saltmaster.yml"
     end
+#    node.vm.network "forwarded_port", guest: 80, host:8888
   end
 
   # Common ansible script ran on all VMs

@@ -2,7 +2,7 @@
 - hosts: all
   become: True
   vars:
-    salt_ver: '2015.8'
+    salt_ver: '2016.3'
   tasks:
     - name: update /etc/hosts with a proper fqdn. vagrant sucks at doing this
       template: src=etc_hosts.j2 dest=/etc/hosts
