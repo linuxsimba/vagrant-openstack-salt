@@ -2,8 +2,8 @@
 - hosts: all
   become: True
   vars:
-    base_sls_path: /srv/salt/env/prd
-    salt_formula_path: /usr/share/salt-formulas/env
+    base_sls_path: /usr/share/salt-formulas/env
+    salt_formula_path: /usr/share/salt-formulas/orig
     reclass_git_repo: https://github.com/linuxsimba/mk20-lab-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
     base_salt_formulas:
@@ -41,6 +41,7 @@
       git:
         repo: "{{ reclass_git_repo }}"
         dest: "{{ reclass_git_repo_install_dir }}"
+        update: yes
 
     - name: add custom changes to the salt master config
       template: src=master.conf.j2 dest=/etc/salt/master.d/master.conf
