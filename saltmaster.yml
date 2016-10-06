@@ -2,8 +2,8 @@
 - hosts: all
   become: True
   vars:
-    salt_formulas: ["linux","reclass","salt","openssh","ntp","git","nginx","collectd","sensu","heka","sphinx","keepalived", "haproxy", 'memcached', 'rabbitmq', 'keystone', 'python', 'glusterfs', 'glance', 'nova', 'neutron', 'cinder', 'heat', 'opencontrail','galera', 'horizon']
-    salt_formula_path: /srv/salt/env/prd
+    base_sls_path: /srv/salt/env/prd
+    salt_formula_path: /usr/share/salt-formulas/env
     reclass_git_repo: https://github.com/linuxsimba/mk20-lab-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
     base_salt_formulas:
@@ -43,19 +43,29 @@
         dest: "{{ reclass_git_repo_install_dir }}"
 
     - name: add custom changes to the salt master config
-      copy: src=master.conf dest=/etc/salt/master.d/master.conf
+      template: src=master.conf.j2 dest=/etc/salt/master.d/master.conf
       notify: restart salt master
 
     - name: |
-        create salt formula path. In this case set it up as the
-        production setup
+        create salt formula path.
       file: path="{{ salt_formula_path }}" state=directory
 
-    - name: install base salt formulas
+    - name: |
+        create path for prd salt states to use. dir is /srv/salt/env/prd
+      file: path="{{base_sls_path}}" state=directory
+
+    - name: install base salt formulas.
       git:
         repo: "{{item.gitpath}}"
         dest: "{{salt_formula_path}}/{{ item.name}}"
       with_items: "{{base_salt_formulas}}"
+
+    - name: link salt formulas into the prd state directory
+      file:
+        src: "{{ salt_formula_path}}/{{ item.name}}/{{item.name}}"
+        dest: "{{base_sls_path}}/{{item.name}}"
+        state: link
+      with_items: "{{ base_salt_formulas}}"
 
     - name: |
         create the /srv/salt/classes/service directory.

@@ -1,7 +1,7 @@
 # Define the directory where the salt formulas are found
 file_roots:
   base:
-    - /usr/share/salt-formulas/env
+    - {{ base_sls_path }}
 
 #For convenience the data stored in the master configuration file can be made
 #available in all minion's pillars. This makes global configuration of services
