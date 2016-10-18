@@ -7,11 +7,11 @@
     reclass_git_repo: https://github.com/linuxsimba/mk20-lab-salt-model.git
     reclass_git_repo_install_dir: /srv/salt/reclass
     base_salt_formulas:
-        - { name: 'salt', gitpath: "https://github.com/tcpcloud/salt-formula-salt" }
-        - { name: 'git', gitpath: "https://github.com/tcpcloud/salt-formula-git" }
-        - { name: 'linux', gitpath: "https://github.com/linuxsimba/salt-formula-linux" }
-        - { name: 'ntp', gitpath: "https://github.com/tcpcloud/salt-formula-ntp" }
-        - { name: 'reclass', gitpath: "https://github.com/tcpcloud/salt-formula-reclass" }
+      - {name: 'salt', gitpath: "https://github.com/tcpcloud/salt-formula-salt"}
+      - {name: 'git', gitpath: "https://github.com/tcpcloud/salt-formula-git"}
+      - {name: 'linux', gitpath: "https://github.com/linuxsimba/salt-formula-linux", branch: mos8}
+      - {name: 'ntp', gitpath: "https://github.com/tcpcloud/salt-formula-ntp"}
+      - {name: 'reclass', gitpath: "https://github.com/tcpcloud/salt-formula-reclass"}
 
 
   tasks:
@@ -59,6 +59,7 @@
       git:
         repo: "{{item.gitpath}}"
         dest: "{{salt_formula_path}}/{{ item.name}}"
+        version: "{{item.branch|default('master')}}"
       with_items: "{{base_salt_formulas}}"
 
     - name: link salt formulas into the prd state directory
