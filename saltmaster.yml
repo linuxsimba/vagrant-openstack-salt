@@ -1,4 +1,4 @@
----
+
 - hosts: all
   become: True
   vars:
@@ -52,7 +52,7 @@
       file: path="{{ salt_formula_path }}" state=directory
 
     - name: |
-        create path for prd salt states to use. dir is /srv/salt/env/prd
+        create path for prd salt states to use.
       file: path="{{base_sls_path}}" state=directory
 
     - name: install base salt formulas.
@@ -62,7 +62,7 @@
         version: "{{item.branch|default('master')}}"
       with_items: "{{base_salt_formulas}}"
 
-    - name: link salt formulas into the prd state directory
+    - name: link salt formulas into the base sls path
       file:
         src: "{{ salt_formula_path}}/{{ item.name}}/{{item.name}}"
         dest: "{{base_sls_path}}/{{item.name}}"
